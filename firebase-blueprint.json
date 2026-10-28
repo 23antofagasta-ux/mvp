@@ -1,0 +1,214 @@
+{
+  "entities": {
+    "Teacher": {
+      "title": "Teacher",
+      "description": "Teacher profile and security authentication credentials",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "pin": { "type": "string", "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "pin", "createdAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student pet owner data, progress, stars, inventory and pet state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "nisn": { "type": "string", "maxLength": 30 },
+        "className": { "type": "string", "maxLength": 50 },
+        "petSpeciesId": { "type": "string", "maxLength": 128 },
+        "petNickname": { "type": "string", "maxLength": 100 },
+        "stars": { "type": "number" },
+        "level": { "type": "number" },
+        "xp": { "type": "number" },
+        "evolutionStage": { "type": "number" },
+        "needs": { "type": "object" },
+        "inventory": { "type": "object" },
+        "equippedAccessories": { "type": "array" },
+        "equippedHabitat": { "type": "object" },
+        "unlockedHabitats": { "type": "array" },
+        "isSleeping": { "type": "boolean" },
+        "currentNeedId": { "type": "string", "maxLength": 128 },
+        "needCooldownUntil": { "type": "string", "maxLength": 50 },
+        "lastNeedFulfilledTime": { "type": "string", "maxLength": 50 },
+        "lastInteractionTime": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "nisn", "className", "petSpeciesId", "petNickname", "stars", "level", "xp", "evolutionStage", "needs"]
+    },
+    "PetSpecies": {
+      "title": "PetSpecies",
+      "description": "Customizable pet species catalog with 4 evolution stages",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "category": { "type": "string", "maxLength": 50 },
+        "stages": { "type": "array" },
+        "soundType": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "description", "category", "stages"]
+    },
+    "ShopItem": {
+      "title": "ShopItem",
+      "description": "Items in pet store redeemable with stars",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "maxLength": 50 },
+        "price": { "type": "number" },
+        "boosts": { "type": "object" },
+        "icon": { "type": "string", "maxLength": 20 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "description": { "type": "string", "maxLength": 300 },
+        "unlockLevel": { "type": "number" },
+        "inStock": { "type": "boolean" },
+        "decorType": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "category", "price", "boosts", "icon", "description", "unlockLevel", "inStock"]
+    },
+    "StarRewardCategory": {
+      "title": "StarRewardCategory",
+      "description": "Preset reward categories for awarding stars to students",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "stars": { "type": "number" },
+        "icon": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "name", "stars", "icon", "description"]
+    },
+    "StarDeductionCategory": {
+      "title": "StarDeductionCategory",
+      "description": "Preset deduction categories for reducing stars",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "stars": { "type": "number" },
+        "icon": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "name", "stars", "icon", "description"]
+    },
+    "PetNeed": {
+      "title": "PetNeed",
+      "description": "Dynamic pet desires and tasks configured by teachers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "text": { "type": "string", "maxLength": 200 },
+        "icon": { "type": "string", "maxLength": 20 },
+        "category": { "type": "string", "maxLength": 50 },
+        "targetItemId": { "type": "string", "maxLength": 128 },
+        "rewardXp": { "type": "number" },
+        "rewardProgress": { "type": "number" }
+      },
+      "required": ["id", "text", "icon", "category", "rewardXp", "rewardProgress"]
+    },
+    "DailyQuest": {
+      "title": "DailyQuest",
+      "description": "Daily quest challenges for students",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 300 },
+        "category": { "type": "string", "maxLength": 50 },
+        "target": { "type": "number" },
+        "current": { "type": "number" },
+        "xpReward": { "type": "number" },
+        "starReward": { "type": "number" },
+        "completed": { "type": "boolean" },
+        "claimed": { "type": "boolean" }
+      },
+      "required": ["id", "title", "description", "category", "target", "current", "xpReward", "starReward", "completed", "claimed"]
+    },
+    "StarAuditLog": {
+      "title": "StarAuditLog",
+      "description": "Immutable transparent audit log of all star changes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 100 },
+        "nisn": { "type": "string", "maxLength": 30 },
+        "type": { "type": "string", "maxLength": 20 },
+        "categoryName": { "type": "string", "maxLength": 100 },
+        "stars": { "type": "number" },
+        "note": { "type": "string", "maxLength": 300 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "reverted": { "type": "boolean" }
+      },
+      "required": ["id", "studentId", "studentName", "nisn", "type", "categoryName", "stars", "timestamp"]
+    },
+    "MiniGameConfig": {
+      "title": "MiniGameConfig",
+      "description": "Teacher configuration and lock controls for mini-games",
+      "type": "object",
+      "properties": {
+        "isAllLocked": { "type": "boolean" },
+        "lockMessage": { "type": "string", "maxLength": 300 },
+        "lockedGames": { "type": "object" },
+        "mathConfig": { "type": "object" },
+        "customTriviaQuestions": { "type": "array" },
+        "customDietPairs": { "type": "array" },
+        "customMemoryPairs": { "type": "array" },
+        "lastUpdated": { "type": "string", "maxLength": 50 },
+        "updatedBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["isAllLocked", "lockedGames"]
+    }
+  },
+  "firestore": {
+    "/teachers/{teacherId}": {
+      "schema": "Teacher",
+      "description": "Collection of teacher accounts with administrative controls"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Collection of enrolled student accounts and pet progress"
+    },
+    "/species/{speciesId}": {
+      "schema": "PetSpecies",
+      "description": "Collection of customizable species and evolution art"
+    },
+    "/shopItems/{itemId}": {
+      "schema": "ShopItem",
+      "description": "Store items purchasable by students using stars"
+    },
+    "/rewards/{rewardId}": {
+      "schema": "StarRewardCategory",
+      "description": "Presets of teacher star reward categories"
+    },
+    "/deductions/{deductionId}": {
+      "schema": "StarDeductionCategory",
+      "description": "Presets of teacher star deduction categories"
+    },
+    "/petNeeds/{needId}": {
+      "schema": "PetNeed",
+      "description": "Customizable pet care desires and educational tasks"
+    },
+    "/dailyQuests/{questId}": {
+      "schema": "DailyQuest",
+      "description": "Quests refreshed daily for pet care and educational activities"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "StarAuditLog",
+      "description": "Transparent transaction audit log of star awards and deductions"
+    },
+    "/system/{configId}": {
+      "schema": "MiniGameConfig",
+      "description": "System settings including mini-game locks and custom questions"
+    }
+  }
+}

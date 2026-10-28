@@ -1,0 +1,225 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Validation Helpers
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isTeacherAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == '23antofagasta@gmail.com' ||
+        exists(/databases/$(database)/documents/teachers/$(request.auth.uid))
+      );
+    }
+
+    // Entity Schema Validators
+    function isValidTeacher(data) {
+      return data.keys().hasAll(['id', 'name', 'pin', 'createdAt']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.pin is string && data.pin.size() <= 32 &&
+             data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidStudent(data) {
+      return data.keys().hasAll(['id', 'name', 'nisn', 'className', 'petSpeciesId', 'petNickname', 'stars', 'level', 'xp', 'evolutionStage', 'needs']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.nisn is string && data.nisn.size() <= 30 &&
+             data.className is string && data.className.size() <= 50 &&
+             data.petSpeciesId is string && data.petSpeciesId.size() <= 128 &&
+             data.petNickname is string && data.petNickname.size() <= 100 &&
+             data.stars is number && data.stars >= 0 &&
+             data.level is number && data.level >= 1 && data.level <= 10 &&
+             data.xp is number && data.xp >= 0 &&
+             data.evolutionStage is number && data.evolutionStage >= 0 && data.evolutionStage <= 3 &&
+             data.needs is map;
+    }
+
+    function isValidSpecies(data) {
+      return data.keys().hasAll(['id', 'name', 'description', 'category', 'stages']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.description is string && data.description.size() <= 500 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.stages is list && data.stages.size() == 4;
+    }
+
+    function isValidShopItem(data) {
+      return data.keys().hasAll(['id', 'name', 'category', 'price', 'boosts', 'icon', 'description', 'unlockLevel', 'inStock']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.price is number && data.price >= 0 &&
+             data.boosts is map &&
+             data.icon is string && data.icon.size() <= 20 &&
+             data.description is string && data.description.size() <= 300 &&
+             data.unlockLevel is number &&
+             data.inStock is bool;
+    }
+
+    function isValidReward(data) {
+      return data.keys().hasAll(['id', 'name', 'stars', 'icon', 'description']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.stars is number &&
+             data.icon is string && data.icon.size() <= 20 &&
+             data.description is string && data.description.size() <= 300;
+    }
+
+    function isValidDeduction(data) {
+      return data.keys().hasAll(['id', 'name', 'stars', 'icon', 'description']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.stars is number &&
+             data.icon is string && data.icon.size() <= 20 &&
+             data.description is string && data.description.size() <= 300;
+    }
+
+    function isValidPetNeed(data) {
+      return data.keys().hasAll(['id', 'text', 'icon', 'category', 'rewardXp', 'rewardProgress']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.text is string && data.text.size() <= 200 &&
+             data.icon is string && data.icon.size() <= 20 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.rewardXp is number &&
+             data.rewardProgress is number;
+    }
+
+    function isValidDailyQuest(data) {
+      return data.keys().hasAll(['id', 'title', 'description', 'category', 'target', 'current', 'xpReward', 'starReward', 'completed', 'claimed']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 150 &&
+             data.description is string && data.description.size() <= 300 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.target is number &&
+             data.current is number &&
+             data.xpReward is number &&
+             data.starReward is number &&
+             data.completed is bool &&
+             data.claimed is bool;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'studentId', 'studentName', 'nisn', 'type', 'categoryName', 'stars', 'timestamp']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.studentId is string && data.studentId.size() <= 128 &&
+             data.studentName is string && data.studentName.size() <= 100 &&
+             data.nisn is string && data.nisn.size() <= 30 &&
+             data.type is string && data.type in ['award', 'deduct'] &&
+             data.categoryName is string && data.categoryName.size() <= 100 &&
+             data.stars is number &&
+             data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidMiniGameConfig(data) {
+      return data.keys().hasAll(['isAllLocked', 'lockedGames']) &&
+             data.isAllLocked is bool &&
+             data.lockedGames is map;
+    }
+
+    // --- Teachers Collection ---
+    match /teachers/{teacherId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(teacherId) && isTeacherAdmin() && isValidTeacher(incoming());
+    }
+
+    // --- Students Collection ---
+    match /students/{studentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isValidId(studentId) && isTeacherAdmin() && isValidStudent(incoming());
+      allow delete: if isValidId(studentId) && isTeacherAdmin();
+      allow update: if isValidId(studentId) && isValidStudent(incoming()) && (
+        isTeacherAdmin() ||
+        (
+          isSignedIn() &&
+          incoming().id == existing().id &&
+          incoming().nisn == existing().nisn &&
+          incoming().className == existing().className &&
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'petNickname', 'needs', 'inventory', 'equippedAccessories',
+            'equippedHabitat', 'unlockedHabitats', 'isSleeping',
+            'currentNeedId', 'needCooldownUntil', 'lastNeedFulfilledTime',
+            'lastInteractionTime', 'stars', 'xp', 'level', 'evolutionStage'
+          ])
+        )
+      );
+    }
+
+    // --- Species Catalog ---
+    match /species/{speciesId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(speciesId) && isTeacherAdmin() && isValidSpecies(incoming());
+    }
+
+    // --- Shop Items ---
+    match /shopItems/{itemId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(itemId) && isTeacherAdmin() && isValidShopItem(incoming());
+    }
+
+    // --- Star Reward Presets ---
+    match /rewards/{rewardId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(rewardId) && isTeacherAdmin() && isValidReward(incoming());
+    }
+
+    // --- Star Deduction Presets ---
+    match /deductions/{deductionId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(deductionId) && isTeacherAdmin() && isValidDeduction(incoming());
+    }
+
+    // --- Pet Needs Catalog ---
+    match /petNeeds/{needId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(needId) && isTeacherAdmin() && isValidPetNeed(incoming());
+    }
+
+    // --- Daily Quests ---
+    match /dailyQuests/{questId} {
+      allow get, list: if isSignedIn();
+      allow create, delete: if isValidId(questId) && isTeacherAdmin();
+      allow update: if isValidId(questId) && isValidDailyQuest(incoming()) && (
+        isTeacherAdmin() ||
+        (
+          isSignedIn() &&
+          incoming().id == existing().id &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['current', 'completed', 'claimed'])
+        )
+      );
+    }
+
+    // --- Star Audit Logs (Append-Only) ---
+    match /auditLogs/{logId} {
+      allow get, list: if isSignedIn();
+      allow create: if isValidId(logId) && isSignedIn() && isValidAuditLog(incoming());
+      allow update, delete: if isValidId(logId) && isTeacherAdmin();
+    }
+
+    // --- System Configurations (MiniGame Locks & Settings) ---
+    match /system/{configId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isValidId(configId) && isTeacherAdmin() && isValidMiniGameConfig(incoming());
+    }
+  }
+}

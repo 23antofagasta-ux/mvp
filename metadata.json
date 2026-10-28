@@ -1,0 +1,6 @@
+{
+  "name": "My Virtual Pet - Game Edukasi",
+  "description": "Game edukasi hewan peliharaan MVP dengan panel guru dan siswa, reward bintang real-time, sistem evolusi, habitat dekoratif, mini-game dan sertifikat MVP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
